@@ -1,0 +1,35 @@
+html{ height:100vh}
+body{min-height:100vh}
+*{
+background-color:#000;
+color:#666666;
+padding: 0;
+margin: 0;
+transition: all 0.25s;
+word-break:break-all;
+}
+body{
+display:flex;
+flex-flow:column nowrap;
+align-content:center;
+justify-content:start;
+text-align:center;
+padding-bottom:30px;
+}
+.fixed{
+position:fixed;
+bottom:0;
+display:flex;
+flex-flow:row nowrap;
+align-content: center;
+justify-content:center;
+min-width:100%;
+}
+.fixed :nth-child(1){
+    order:1;
+    flex: 1 auto;
+}
+.fixed :nth-child(2){
+    order:2;
+    flex: 0 30px;
+}
