@@ -36,13 +36,37 @@ const socketConnect = (s,m) => {
         io.to(room).emit('m',`User ${id} has left.`);
     })
 };
+const auth = new Map();
 io.on('connection', async (s) => {
-    s.use((s,n)=>{
+    let handshake = s.handshake;
+    let uuid = !s.secure && setTimeout( 
+        ()=>{
+            if( !Object.keys(handshake.auth).length ) {
+                console.log(handshake.auth);
+                s.emit('m','no ticket')
+                s.disconnect(1,'no ticket');
+            }
+        },
+        300, 
+    );
+    s.use((e,n)=>{
         n();
+    });
+    s.on('disconnecting',(r)=>{
+        // remove id from set
+        clearTimeout(uuid);
+        let id = auth.get(s.id);
+        if(id) auth.delete(id) && auth.delete(s.id);
     });
     s.on('j',(name='general')=>{
         socketConnect(s,name);
     })
+    s.on('t', (args)=>{
+        let id;
+        s.emit('t', id =io.engine.generateId() );
+        auth.set(id,s.id);
+        auth.set(s.id,id);
+    });
 })
 app.use('/reload', (q,r)=> r.send(io.emit('r')) )
 app.get('/:id',(q,r,n)=>{

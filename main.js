@@ -1,4 +1,40 @@
-const socket = io();
+//const Manager = io();
+const options = {
+    transports: ['websocket'],
+    forceBase64: true,
+    autoConnect: false,
+    reconnectionAttempts:10,
+    reconnectionDelayMax:1000,
+    query:{
+        time:Date.now()
+    }
+};
+const sm = io('ws://localhost:3000',options)
+let socket;
+
+const startConnection = (is)=>{
+    sm.emit('t')
+    sm.on('t',(s)=>{
+        socket = io(Object.assign({secure:true,reconnection:false,auth:{token:s}},options));
+        socket.on('connect',()=>{
+            console.log('safer connection!')
+            start(socket);
+        })
+        socket.open();
+        sm.disconnect();
+    })
+}
+
+sm.on('connect', (s)=>{
+    console.log('Socket connected',sm);
+    startConnection(s);
+})
+sm.on('disconnect',(r)=>{
+    console.log('diconnected!',r)
+})
+sm.open();
+const start = (socket)=>{
+
 const toDate = d => new Date(parseInt(d)).toLocaleTimeString(navigator.language,{hour12:false});
 socket.emit('j',location.pathname.slice(1));
 socket.on('m', m => {
@@ -34,3 +70,5 @@ btn.onclick = e => {
 };
 
 window.onfocus = ()=> msg.focus();
+}
+
